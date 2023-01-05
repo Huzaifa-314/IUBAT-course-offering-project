@@ -9,33 +9,33 @@
 
 
     // conflict check
-    function checkConflict($selectedDayTime){
-        global $schedule,$time,$day;
-        // getting day and time corresponding to a value
-        for($i = 0; $i < sizeof($time); $i++){
-            ${$time[$i]['Time']}=$i;
-        }
-        for($i = 0; $i < sizeof($day); $i++){
-            ${$day[$i]['Day']}=$i;
-        }
+    // function checkConflict($selectedDayTime){
+    //     global $schedule,$time,$day;
+    //     // getting day and time corresponding to a value
+    //     for($i = 0; $i < sizeof($time); $i++){
+    //         ${$time[$i]['Time']}=$i;
+    //     }
+    //     for($i = 0; $i < sizeof($day); $i++){
+    //         ${$day[$i]['Day']}=$i;
+    //     }
 
 
-        $conflict = 0;
-        // checking if the course has conflict (with flag value)
-        for($j=0; $j<sizeof($selectedDayTime); $j++){
-            if($schedule[${$selectedDayTime[$j]['Day']}][${$selectedDayTime[$j]['Time']}] == 1){
-                $conflict = 1;
-                break;
-            }
-        }
+    //     $conflict = 0;
+    //     // checking if the course has conflict (with flag value)
+    //     for($j=0; $j<sizeof($selectedDayTime); $j++){
+    //         if($schedule[${$selectedDayTime[$j]['Day']}][${$selectedDayTime[$j]['Time']}] == 1){
+    //             $conflict = 1;
+    //             break;
+    //         }
+    //     }
         
-        if($conflict == 0){
-            return 0;
-        }
-        else{
-            return 1;
-        }
-    }
+    //     if($conflict == 0){
+    //         return 0;
+    //     }
+    //     else{
+    //         return 1;
+    //     }
+    // }
 
     //filling schedule function
     function fillSchedule($selectedDayTime){
@@ -52,24 +52,9 @@
 
         // filling up schedule for not conflict course
         for($j=0; $j<sizeof($selectedDayTime); $j++){
-            $schedule[${$selectedDayTime[$j]['Day']}][${$selectedDayTime[$j]['Time']}] = 1;
+            $schedule[${$selectedDayTime[$j]['Day']}][${$selectedDayTime[$j]['Time']}] += 1;
         }
     }
-    
-
-
-
-    
-    //get variable name
-    function display($var) {
-        foreach($GLOBALS as $demo => $value) {
-           if ($value === $var) {
-              return $demo;
-           }
-        }
-        return false;
-    }
-
 
     // getting all courses name
     $courses = mysqli_fetch_all(mysqli_query($db, "SELECT DISTINCT Course FROM fulltable ORDER BY fulltable.Course ASC"),MYSQLI_ASSOC);
@@ -103,108 +88,81 @@
     $time = mysqli_fetch_all(mysqli_query($db, "SELECT DISTINCT Time FROM fulltable"),MYSQLI_ASSOC);
     $day = mysqli_fetch_all(mysqli_query($db, "SELECT DISTINCT Day FROM fulltable"),MYSQLI_ASSOC);
 
-
-    
-
-
-    $schedule = [
-        [0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0],
-        [0,0,0,0,0,0,0,0]
-    ];
-
-
     // total section of each course (variable example:  ${'Scsc 283'}   )
     for($i = 0; $i < sizeof($mainCourses); $i++){
         $McName = $mainCourses[$i];
         ${'S'.$McName} = mysqli_fetch_all(mysqli_query($db, "SELECT DISTINCT Section FROM `$McName` ORDER BY `$McName`.`Section` ASC"),MYSQLI_ASSOC);
     }
 
-    //echo $mainCourses[0];
     //permutation begin
+    $c=1; //combination counter. Total combination: ($c-1)
     // condition:   sizeof(${'S'.$mainCourses[0]})
     for($i = 0; $i <sizeof(${'S'.$mainCourses[0]}); $i++){
-        for($j = 0; $j < sizeof(${'S'.$mainCourses[1]}); $i++){
+        for($j = 0; $j < sizeof(${'S'.$mainCourses[1]}); $j++){
             for($k = 0; $k < sizeof(${'S'.$mainCourses[2]}); $k++){
                 for($l = 0; $l < sizeof(${'S'.$mainCourses[3]}); $l++){
-                    $selectedCourse = $mainCourses[0];
-                    $selectedLCourse = $labCourses[0];
-                    $selectedCourse1 = $mainCourses[1];
-                    $selectedCourse2 = $mainCourses[2];
-                    $selectedCourse3 = $mainCourses[3];
-                    $selectedLCourse1 = $labCourses[1];
-
-
-                    $selectedSec = ${'S'.$selectedCourse}[$i]['Section'];
-                    $selectedSec1 = ${'S'.$selectedCourse1}[$j]['Section'];
-                    $selectedSec2 = ${'S'.$selectedCourse2}[$k]['Section'];
-                    $selectedSec3 = ${'S'.$selectedCourse3}[$l]['Section'];
-                    //get time and date of seclected section of the course
-                    $selectedDayTime = mysqli_fetch_all(mysqli_query($db, "SELECT Day,Time FROM `$selectedCourse` WHERE Section = '$selectedSec'"),MYSQLI_ASSOC);
-                    $selectedLDayTime = mysqli_fetch_all(mysqli_query($db, "SELECT Day,Time FROM `$selectedLCourse` WHERE Section = '$selectedSec'"),MYSQLI_ASSOC);
-                    $selectedDayTime1 = mysqli_fetch_all(mysqli_query($db, "SELECT Day,Time FROM `$selectedCourse1` WHERE Section = '$selectedSec1'"),MYSQLI_ASSOC);
-                    $selectedDayTime2 = mysqli_fetch_all(mysqli_query($db, "SELECT Day,Time FROM `$selectedCourse2` WHERE Section = '$selectedSec2'"),MYSQLI_ASSOC);
-                    $selectedDayTime3 = mysqli_fetch_all(mysqli_query($db, "SELECT Day,Time FROM `$selectedCourse3` WHERE Section = '$selectedSec3'"),MYSQLI_ASSOC);
-                    $selectedLDayTime1 = mysqli_fetch_all(mysqli_query($db, "SELECT Day,Time FROM `$selectedLCourse1` WHERE Section = '$selectedSec3'"),MYSQLI_ASSOC);
-
-                    if(checkConflict($selectedDayTime3) == 1 or checkConflict($selectedLDayTime1) == 1){
-                        echo 'conflict';
-                        continue;
-                    }
-                    else{
-                        fillSchedule($selectedDayTime3);
-                        fillSchedule($selectedLDayTime1);
-                        
-                    }
-
-                    // for($i = 0; $i < sizeof(${'S'.$mainCourses[1]}); $i++){
-                    //     $selectedCourse1 = $mainCourses[1];
-                    //     $selectedSec1 = ${'S'.$selectedCourse1}[$i]['Section'];
-                    //     //get time and date of seclected section of the course
-                    //     $selectedDayTime1 = mysqli_fetch_all(mysqli_query($db, "SELECT Day,Time FROM `$selectedCourse1` WHERE Section = '$selectedSec1'"),MYSQLI_ASSOC);
-                    //     if(checkConflict($selectedDayTime1) == 1){
-                    //         echo 'conflict';
-                    //         continue;
-                    //     }
-                    //     else{
-                    //         fillSchedule($selectedDayTime1);
-                    //     }
-                
-                        
-                    // }
-                }
-                if(checkConflict($selectedDayTime2) == 1){
-                    echo 'conflict';
-                    continue;
-                }
-                else{
-                    fillSchedule($selectedDayTime2);
                     
+                    ${'combo'.$c++} = ${'S'.$mainCourses[0]}[$i]['Section'].${'S'.$mainCourses[1]}[$j]['Section'].${'S'.$mainCourses[2]}[$k]['Section'].${'S'.$mainCourses[3]}[$l]['Section'].'<br>';
                 }
-
             }
-            if(checkConflict($selectedDayTime1) == 1){
-                echo 'conflict';
-                continue;
-            }
-            else{
-                fillSchedule($selectedDayTime1);
-            }
-
-        }
-        if(checkConflict($selectedDayTime) == 1 or checkConflict($selectedLDayTime) == 1){
-            echo 'conflict';
-            continue;
-        }
-        else{
-            fillSchedule($selectedDayTime);
-            fillSchedule($selectedLDayTime);
         }
     }
 
-    echo '<br>'.'<br>'.'<br>'.'<br>'.json_encode($schedule);
+    $selectedCourse = $mainCourses[0];
+    $selectedLCourse = $labCourses[0];
+    $selectedCourse1 = $mainCourses[1];
+    $selectedCourse2 = $mainCourses[2];
+    $selectedCourse3 = $mainCourses[3];
+    $selectedLCourse1 = $labCourses[1];
+    $q=0;
+    // condition is $c
+    for($i = 1; $i < $c; $i++){
+        $schedule = [
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0],
+            [0,0,0,0,0,0,0,0]
+        ];
+        // echo ${'combo'.$i};
+
+        $selectedSec = ${'combo'.$i}[0];
+        $selectedSec1 = ${'combo'.$i}[1];
+        $selectedSec2 = ${'combo'.$i}[2];
+        $selectedSec3 = ${'combo'.$i}[3];
+
+        //get time and date of seclected section of the course
+        $selectedDayTime = mysqli_fetch_all(mysqli_query($db, "SELECT Day,Time FROM `$selectedCourse` WHERE Section = '$selectedSec'"),MYSQLI_ASSOC);
+        $selectedLDayTime = mysqli_fetch_all(mysqli_query($db, "SELECT Day,Time FROM `$selectedLCourse` WHERE Section = '$selectedSec'"),MYSQLI_ASSOC);
+        $selectedDayTime1 = mysqli_fetch_all(mysqli_query($db, "SELECT Day,Time FROM `$selectedCourse1` WHERE Section = '$selectedSec1'"),MYSQLI_ASSOC);
+        $selectedDayTime2 = mysqli_fetch_all(mysqli_query($db, "SELECT Day,Time FROM `$selectedCourse2` WHERE Section = '$selectedSec2'"),MYSQLI_ASSOC);
+        $selectedDayTime3 = mysqli_fetch_all(mysqli_query($db, "SELECT Day,Time FROM `$selectedCourse3` WHERE Section = '$selectedSec3'"),MYSQLI_ASSOC);
+        $selectedLDayTime1 = mysqli_fetch_all(mysqli_query($db, "SELECT Day,Time FROM `$selectedLCourse1` WHERE Section = '$selectedSec3'"),MYSQLI_ASSOC);
+        fillSchedule($selectedDayTime);
+        fillSchedule($selectedLDayTime);
+        fillSchedule($selectedDayTime1);
+        fillSchedule($selectedDayTime2);
+        fillSchedule($selectedDayTime3);
+        fillSchedule($selectedLDayTime1);
+
+        $conflict = 0;
+        for($k = 0; $k < sizeof($schedule); $k++){
+            for($j = 0; $j < sizeof($schedule[0]); $j++){
+                if($schedule[$k][$j] == 2){
+                    $conflict = 1;
+                    break 2;
+                }
+            }
+        }
+
+        if($conflict == 0){
+            echo $q++.${'combo'.$i}.json_encode($schedule).'<br>';
+        }
+        
+    }
+
+    
+    //echo '<br>'.'<br>'.'<br>'.'<br>'.json_encode($schedule);
 
 
 
