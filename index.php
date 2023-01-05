@@ -49,11 +49,14 @@
         }
 
 
-
+        $eff=0;
         // filling up schedule for not conflict course
         for($j=0; $j<sizeof($selectedDayTime); $j++){
             $schedule[${$selectedDayTime[$j]['Day']}][${$selectedDayTime[$j]['Time']}] += 1;
+            $eff += ${$selectedDayTime[$j]['Time']};
         }
+
+        return $eff;
     }
 
     // getting all courses name
@@ -117,6 +120,7 @@
     $q=0;
     // condition is $c
     for($i = 1; $i < $c; $i++){
+        $effi=0;
         $schedule = [
             [0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0],
@@ -138,17 +142,17 @@
         $selectedDayTime2 = mysqli_fetch_all(mysqli_query($db, "SELECT Day,Time FROM `$selectedCourse2` WHERE Section = '$selectedSec2'"),MYSQLI_ASSOC);
         $selectedDayTime3 = mysqli_fetch_all(mysqli_query($db, "SELECT Day,Time FROM `$selectedCourse3` WHERE Section = '$selectedSec3'"),MYSQLI_ASSOC);
         $selectedLDayTime1 = mysqli_fetch_all(mysqli_query($db, "SELECT Day,Time FROM `$selectedLCourse1` WHERE Section = '$selectedSec3'"),MYSQLI_ASSOC);
-        fillSchedule($selectedDayTime);
-        fillSchedule($selectedLDayTime);
-        fillSchedule($selectedDayTime1);
-        fillSchedule($selectedDayTime2);
-        fillSchedule($selectedDayTime3);
-        fillSchedule($selectedLDayTime1);
+        $effi += fillSchedule($selectedDayTime);
+        $effi += fillSchedule($selectedLDayTime);
+        $effi += fillSchedule($selectedDayTime1);
+        $effi += fillSchedule($selectedDayTime2);
+        $effi += fillSchedule($selectedDayTime3);
+        $effi += fillSchedule($selectedLDayTime1);
 
         $conflict = 0;
         for($k = 0; $k < sizeof($schedule); $k++){
             for($j = 0; $j < sizeof($schedule[0]); $j++){
-                if($schedule[$k][$j] == 2){
+                if($schedule[$k][$j] > 1){
                     $conflict = 1;
                     break 2;
                 }
@@ -156,7 +160,7 @@
         }
 
         if($conflict == 0){
-            echo $q++.${'combo'.$i}.json_encode($schedule).'<br>';
+            echo $effi.${'combo'.$i}.json_encode($schedule).'<br>';
         }
         
     }
