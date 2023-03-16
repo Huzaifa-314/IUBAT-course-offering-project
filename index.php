@@ -8,35 +8,7 @@
 	}
 
 
-    // conflict check
-    // function checkConflict($selectedDayTime){
-    //     global $schedule,$time,$day;
-    //     // getting day and time corresponding to a value
-    //     for($i = 0; $i < sizeof($time); $i++){
-    //         ${$time[$i]['Time']}=$i;
-    //     }
-    //     for($i = 0; $i < sizeof($day); $i++){
-    //         ${$day[$i]['Day']}=$i;
-    //     }
-
-
-    //     $conflict = 0;
-    //     // checking if the course has conflict (with flag value)
-    //     for($j=0; $j<sizeof($selectedDayTime); $j++){
-    //         if($schedule[${$selectedDayTime[$j]['Day']}][${$selectedDayTime[$j]['Time']}] == 1){
-    //             $conflict = 1;
-    //             break;
-    //         }
-    //     }
-        
-    //     if($conflict == 0){
-    //         return 0;
-    //     }
-    //     else{
-    //         return 1;
-    //     }
-    // }
-
+    
     //filling schedule function
     function fillSchedule($selectedDayTime){
         global $schedule,$time,$day;
@@ -160,7 +132,7 @@
         }
 
         if($conflict == 0){
-            echo $effi.${'combo'.$i}.json_encode($schedule).'<br>';
+            echo '(Score: '.$effi.')  '.'<strong>'.${'combo'.$i}.'</strong>'.json_encode($schedule).'<br><br>';
         }
         
     }
